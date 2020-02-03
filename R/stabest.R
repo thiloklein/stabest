@@ -22,20 +22,20 @@
 #' supplied via student.prefs and school.prefs, respectively (including factors).
 #' @param nCores number of parallel cores to use (currently only 1 is permitted)
 #' 
-#' @return An object of type "stabit" 
+#' @return An object of type "stabest" 
 #' 
 #' @examples put example here
 #' 
 #' @import Matrix
 #' @import Rcpp
-#' @useDynLib stabit
+#' @useDynLib stabest
 #' 
 #' 
 #' @export
-stabit <- function(student.prefs, college.prefs, 
-                   student.id='s.id', college.id='c.id', match.id=NULL,
-                   data, nSeats=NULL, demean=FALSE, 
-                   niter=500, thin=10, burnin=50, initparm=NULL, nCores=1) {
+stabest <- function(student.prefs, college.prefs, 
+                    student.id='s.id', college.id='c.id', match.id=NULL,
+                    data, nSeats=NULL, demean=FALSE, 
+                    niter=500, thin=10, burnin=50, initparm=NULL, nCores=1) {
   
   
   
@@ -325,27 +325,27 @@ stabit <- function(student.prefs, college.prefs,
   # run the estimator
   
   cat('Call the estimation routine ...\n')
-  res = stabit_internal(Vc=data$Vc_,
-                        Vs=data$Vs_,
-                        Xc=Xc, 
-                        XcXcInv=XcXcInv, 
-                        Xs=Xs, 
-                        XsXsInv=XsXsInv, 
-                        betaR=beta, 
-                        gammaR=gamma, 
-                        VacantSeats = SchoolStats$VacantSeats,
-                        nObs=SchoolStats$ones_, 
-                        ID_eqCollege = StudentStats$ID_,
-                        match=data[[match.id]],
-                        sid=data$sid_,
-                        ID_cBetter=data$ID_cBetter,
-                        ID_cWorse=data$ID_cWorse,
-                        ID_sBetter=data$ID_sBetter,
-                        ID_sWorse=data$ID_sWorse,
-                        ID_nextCollege = data$ID_nextCollege,
-                        niter=niter,
-                        thin=thin,
-                        demean=demean)
+  res = stabest_internal(Vc=data$Vc_,
+                         Vs=data$Vs_,
+                         Xc=Xc, 
+                         XcXcInv=XcXcInv, 
+                         Xs=Xs, 
+                         XsXsInv=XsXsInv, 
+                         betaR=beta, 
+                         gammaR=gamma, 
+                         VacantSeats = SchoolStats$VacantSeats,
+                         nObs=SchoolStats$ones_, 
+                         ID_eqCollege = StudentStats$ID_,
+                         match=data[[match.id]],
+                         sid=data$sid_,
+                         ID_cBetter=data$ID_cBetter,
+                         ID_cWorse=data$ID_cWorse,
+                         ID_sBetter=data$ID_sBetter,
+                         ID_sWorse=data$ID_sWorse,
+                         ID_nextCollege = data$ID_nextCollege,
+                         niter=niter,
+                         thin=thin,
+                         demean=demean)
   
   
   
@@ -394,7 +394,7 @@ stabit <- function(student.prefs, college.prefs,
               gamma.hat=gamma.hat, gamma.vcov=gamma.vcov, gamma.ci95=gamma.ci95, gammadraws=res$gammadraws,
               niter=niter, burnin=burnin, thin=thin,
               data=data[,c(student.id, college.id, match.id, 'Vc_','Vs_','Vc_hat','Vs_hat')])
-  class(est) <- "stabit"
+  class(est) <- "stabest"
   # for debugging: 'sid_','cid_','ID_','sRank_','ID_sBetter','ID_sWorse','cRank_','ID_cBetter','ID_cWorse',
 
   return(est)
