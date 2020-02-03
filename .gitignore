@@ -1,0 +1,11 @@
+*.dll
+*.o
+old/
+tests/
+.Rproj.user/
+R/RcppExports.R
+src/RcppExports.cpp
+LOG.txt
+.Rhistory
+.Rbuildignore
+stabest.Rproj
