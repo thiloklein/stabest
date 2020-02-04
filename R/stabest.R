@@ -29,18 +29,24 @@
 #' 
 #' @export
 #' 
-#' @importFrom Matrix sparse.model.matrix update
+#' @import Matrix
 #' @import Rcpp
 #' @importFrom dplyr left_join group_by summarise n mutate if_else select %>%
-#' @import stats
+#' @importFrom stats aggregate cov model.frame pnorm quantile terms var
 #' @import mvtnorm
 #' @import truncnorm
-#' 
-#' @export
+#' @useDynLib stabest
 stabest <- function(student.prefs, college.prefs, 
                     student.id='s.id', college.id='c.id', match.id=NULL,
                     data, nSeats=NULL, demean=FALSE, 
-                    niter=500, thin=10, burnin=50, initparm=NULL, nCores=1) {
+                    niter=500, thin=10, burnin=50, initparm=NULL, nCores=1) UseMethod('stabest')
+  
+
+#' @export
+stabest.default <- function(student.prefs, college.prefs, 
+                            student.id='s.id', college.id='c.id', match.id=NULL,
+                            data, nSeats=NULL, demean=FALSE, 
+                            niter=500, thin=10, burnin=50, initparm=NULL, nCores=1) {
   
   
   # parse student preference equation
