@@ -19,7 +19,7 @@
 #' @param demean whether to de-mean variables by decision making unit (beta)
 #' @param niter number of data augmentation iterations
 #' @param thin thinning parameter
-#' @param burnin number of discarded samples (in the thinned series)
+#' @param burnin number of discarded samples (in the thinned series, so burnin*thin must be less than niter)
 #' @param initparm if not NULL, this must be a list with elements beta (coefficients driving students' prefs)
 #' and gamma (coefficients driving schools' decisions). The number of coefficients must match the number of parameters
 #' supplied via student.prefs and school.prefs, respectively (including factors).
@@ -36,6 +36,46 @@
 #' @import mvtnorm
 #' @import truncnorm
 #' @useDynLib stabest
+#' 
+#' @examples
+#' 
+#' ## Estimate students' and colleges' preferences with different identifying assumptions.
+#' 
+#' niter <- 100
+#' thin <- 2
+#' burnin <- 5
+#' dat <- schoolmarket200
+#' nSeats <- dat$sch_capacity[dat$stu_id==1]
+#' 
+#' ## STABILTIY
+#' 
+#' fit1 <- stabest(.~-1 + distance + stu_score:sch_mscore + sch_FE, .~stu_score-1,
+#'                 data=dat, nSeats=nSeats, 
+#'                 student.id='stu_id',college.id='sch_id',match.id='sch_assignment',
+#'                 niter=niter, burnin=burnin, thin=thin 
+#' )
+#' summary(fit1)
+#' 
+#' ## STABILITY + UNDOMINATED PREFERNCES
+#' 
+#' fit3 <- stabest(choice_rk~-1 + distance + stu_score:sch_mscore + sch_FE, 
+#'                sch_rk_observed~stu_score-1,
+#'                 data=dat, nSeats=nSeats, 
+#'                 student.id='stu_id',college.id='sch_id',match.id='sch_assignment',
+#'                 niter=niter, burnin=burnin, thin=thin
+#' )
+#' summary(fit3)
+#' 
+#' ## UNDOMINATED STRATEGIES
+#' 
+#' fit5 <- stabest(choice_rk~-1 + distance + stu_score:sch_mscore + sch_FE, 
+#'                 sch_rk_observed~stu_score-1,
+#'                 data=dat, nSeats=nSeats, 
+#'                 student.id='stu_id',college.id='sch_id',match.id=NULL,
+#'                 niter=niter, burnin=burnin, thin=thin
+#' )
+#' summary(fit5)
+#' 
 stabest <- function(student.prefs, college.prefs, 
                     student.id='s.id', college.id='c.id', match.id=NULL,
                     data, nSeats=NULL, demean=FALSE, 
