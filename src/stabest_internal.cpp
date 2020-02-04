@@ -80,7 +80,7 @@ List stabest_internal(
   
   // preliminaries and dimension checks
 #ifdef DEBUG
-	std::cout << "Preliminary checks ...\n" << std::flush;
+	Rcpp::Rcout << "Preliminary checks ...\n" << std::flush;
 #endif
   int nColleges = VacantSeats.size();
   assert( nObs_college.size() == nColleges );
@@ -115,7 +115,7 @@ List stabest_internal(
   for (int s=0; s<nStudents; s++) nObs_student[s] = 0;
   for (int i=0; i<sid.size(); i++) nObs_student[sid[i]-1] = std::max(1, nObs_student[sid[i]-1]+1); // since we divide by it, we don't want a zero here.
 #ifdef DEBUG
-  printf("We have %d students and %d colleges.\n", nStudents, nColleges);
+  Rcpp::Rprintf("We have %d students and %d colleges.\n", nStudents, nColleges);
 #endif
   
   
@@ -136,12 +136,12 @@ List stabest_internal(
   
   // set up projection matrices
  #ifdef DEBUG
-	std::cout << "Set up projection matrices ...\n" << std::flush;
+	Rcpp::Rcout << "Set up projection matrices ...\n" << std::flush;
 #endif
   arma::mat Proj_Xc( XcXcInv * trans(Xc) ); // NB: although design matrix may be sparse, projection matrix is probably dense
   arma::mat Proj_Xs( XsXsInv * trans(Xs) );
  #ifdef DEBUG
-	std::cout << "Set up dense versions of inv(X'X) ...\n" << std::flush;
+	Rcpp::Rcout << "Set up dense versions of inv(X'X) ...\n" << std::flush;
 #endif
   arma::mat XcXcInv_dense(XcXcInv); // quick & dirty, need dense matrix for cholesky decomp
   arma::mat XsXsInv_dense(XsXsInv); // quick & dirty, need dense matrix for cholesky decomp
@@ -151,7 +151,7 @@ List stabest_internal(
   
   // set up coefficient matrices
 #ifdef DEBUG
-	std::cout << "Set up coefficient matrices ...\n" << std::flush;
+	Rcpp::Rcout << "Set up coefficient matrices ...\n" << std::flush;
 #endif
   arma::colvec beta = Rcpp::as<arma::colvec>( betaR );
   arma::colvec beta_hat = Rcpp::as<arma::colvec>( betaR );
@@ -163,7 +163,7 @@ List stabest_internal(
   
   // set up sample paths
 #ifdef DEBUG
-	std::cout << "Set up sample paths ...\n" << std::flush;
+	Rcpp::Rcout << "Set up sample paths ...\n" << std::flush;
 #endif
   int Nsamples = floor(niter / thin);
   arma::mat betavalues = arma::zeros(Nsamples, Xc.n_cols);
@@ -174,7 +174,7 @@ List stabest_internal(
   
   // set up vectors for latent and mean utility
 #ifdef DEBUG
-	std::cout << "Set up vectors for latent and mean utility ...\n" << std::flush;
+	Rcpp::Rcout << "Set up vectors for latent and mean utility ...\n" << std::flush;
 #endif
   arma::colvec Xc_beta = arma::zeros( Vs.size() );
   arma::colvec Xs_gamma = arma::zeros( Vc.size() );
@@ -186,7 +186,7 @@ List stabest_internal(
   
   // initialize utility vectors
 #ifdef DEBUG
-	std::cout << "Initialize utility vectors ...\n" << std::flush;
+	Rcpp::Rcout << "Initialize utility vectors ...\n" << std::flush;
 #endif
   Xc_beta = Rcpp::as<arma::colvec>( Vc );
   Xs_gamma = Rcpp::as<arma::colvec>( Vs );
@@ -201,9 +201,9 @@ List stabest_internal(
       if (match[idx_cs]) Vs_min[c] = std::min(Vs_min[c], Vs[idx_cs]); // update the minimum of the college's valuation over all matched students
       if (ID_cWorse[idx_cs]==-2) Vc_maxUnacceptable[s] = std::max(Vc_maxUnacceptable[s], Vc[idx_cs]); // if c is unacceptable to s, update max of unacceptable valuations
 //#ifdef DEBUG
-      //printf("c=%d, idx=%d, ID_cWorse=%d, Vs_maxUnacceptable=%f, Xs_gamma=%f, ", c, idx_cs, ID_sWorse[idx_cs], Vs_maxUnacceptable[c], Vs[idx_cs]);
-      //printf("Vs_maxUnacceptable[c] > Vc[idx_cs] yields %d\n", Vs_maxUnacceptable[c] > Vs[idx_cs] );
-      //printf("FMAX() = %f, std::max() = %f\n", FMAX(Vs_maxUnacceptable[c], Xs_gamma[idx_cs]), std::max(Vs_maxUnacceptable[c], Xs_gamma[idx_cs]));
+      //Rcpp::Rprintf("c=%d, idx=%d, ID_cWorse=%d, Vs_maxUnacceptable=%f, Xs_gamma=%f, ", c, idx_cs, ID_sWorse[idx_cs], Vs_maxUnacceptable[c], Vs[idx_cs]);
+      //Rcpp::Rprintf("Vs_maxUnacceptable[c] > Vc[idx_cs] yields %d\n", Vs_maxUnacceptable[c] > Vs[idx_cs] );
+      //Rcpp::Rprintf("FMAX() = %f, std::max() = %f\n", FMAX(Vs_maxUnacceptable[c], Xs_gamma[idx_cs]), std::max(Vs_maxUnacceptable[c], Xs_gamma[idx_cs]));
 //#endif
       if (ID_sWorse[idx_cs]==-2) Vs_maxUnacceptable[c] = std::max(Vs_maxUnacceptable[c], Vs[idx_cs]); // if s is unacceptable to c, update max of unacceptable valuations over students
       idx_cs += 1;
@@ -212,11 +212,11 @@ List stabest_internal(
   for (int c=0; c<nColleges; c++) if (std::isinf(  Vs_min[c] ) ) Vs_min[c] = -INF; // now set to -INF if the college has no students (since Vs_min serves as a lower bound)
   
 // #ifdef DEBUG
-  // printf("\nInitial state of utility vectors:\n");
-  // std::cout << "Xc_beta: " << Xc_beta << std::endl;
-  // std::cout << "Xs_gamma: " << Xs_gamma << std::endl;
-  // for (int c=0; c<nColleges; c++) printf("c=%d, Vs_min=%f, Vs_max_unacceptable=%f\n", c, Vs_min[c], Vs_maxUnacceptable[c]);
-  // for (int s=0; s<nStudents; s++) printf("s=%d, Vc_max_unacceptable=%f\n", s, Vc_maxUnacceptable[s]);
+  // Rcpp::Rprintf("\nInitial state of utility vectors:\n");
+  // Rcpp::Rcout << "Xc_beta: " << Xc_beta << std::endl;
+  // Rcpp::Rcout << "Xs_gamma: " << Xs_gamma << std::endl;
+  // for (int c=0; c<nColleges; c++) Rcpp::Rprintf("c=%d, Vs_min=%f, Vs_max_unacceptable=%f\n", c, Vs_min[c], Vs_maxUnacceptable[c]);
+  // for (int s=0; s<nStudents; s++) Rcpp::Rprintf("s=%d, Vc_max_unacceptable=%f\n", s, Vc_maxUnacceptable[s]);
 // #endif
   
   
@@ -228,7 +228,7 @@ List stabest_internal(
   int chunk10percent = floor( (double) niter / (double) 10);
   
 #ifdef DEBUG
-	std::cout << "Start main iteration loop ...\n" << std::flush;
+	Rcpp::Rcout << "Start main iteration loop ...\n" << std::flush;
 #endif
   
   
@@ -288,10 +288,10 @@ List stabest_internal(
         
         Vcupperbar=INF, Vsupperbar=INF, Vclowerbar=-INF, Vslowerbar=-INF;
 
-        std::cout.flush();
+
 #ifdef DEBUG
-        printf("\n**************************************************************************\n");
-        printf("iter=%d, idx=%d, c=%d, s=%d, match_cs=%d, idx_eqCollege_s=%d\n", iter, idx_cs, c, s, match_cs, idx_eqCollege_s);
+        Rcpp::Rcout << "\n**************************************************************************\n";
+        Rcpp::Rprintf("iter=%d, idx=%d, c=%d, s=%d, match_cs=%d, idx_eqCollege_s=%d\n", iter, idx_cs, c, s, match_cs, idx_eqCollege_s);
 #endif
         
         
@@ -305,7 +305,7 @@ List stabest_internal(
         //--- equilibrium bounds -----------------------------------------------------------//
         
 #ifdef DEBUG
-          std::cout << "Find student's eq. bounds ..\n" << std::flush;
+          Rcpp::Rcout << "Find student's eq. bounds ..\n" << std::flush;
 #endif
         if (idx_eqCollege_s>=0) { // if student s is matched to _some_ school
 		
@@ -350,7 +350,7 @@ List stabest_internal(
         
         
 #ifdef DEBUG
-          std::cout << "Determine student's rank order bounds ..\n" << std::flush;
+          Rcpp::Rcout << "Determine student's rank order bounds ..\n" << std::flush;
 #endif
         // recall that ID_cWorse and ID_cBetter uses R indexing, 0 indicates NA (no rank order bound)
         
@@ -366,7 +366,7 @@ List stabest_internal(
         //--- draw new valuations that respect the bounds --------------------------------------//
         
 #ifdef DEBUG
-          std::cout << "Drawing student's new latent valuation over college ..\n" << std::flush;
+          Rcpp::Rcout << "Drawing student's new latent valuation over college ..\n" << std::flush;
 #endif
         if(Vclowerbar < Vcupperbar)
           Vc_cs = TRUNCNORM(Xc_beta[ idx_cs_uword ], 1.0, Vclowerbar, Vcupperbar); // mu, sigma, lower, upper
@@ -394,11 +394,11 @@ List stabest_internal(
         
         
 #ifdef DEBUG
-        printf("Student %d's valuation over college %d:\n", s, c);
-        printf("Vcupperbar = %f, Vclowerbar = %f\n", Vcupperbar, Vclowerbar);
-        printf("Vc_hat = %f, Vc = %f\n", Xc_beta[ idx_cs_uword ], Vc_cs);
-        printf("Vc_maxUnacceptable = %f, Vc_GroupMean = %f\n", Vc_maxUnacceptable[ s ], Vc_GroupMean[s]);
-        if (idx_tmp==-2) printf("College %d is unacceptable to student %d\n", c, s);
+        Rcpp::Rprintf("Student %d's valuation over college %d:\n", s, c);
+        Rcpp::Rprintf("Vcupperbar = %f, Vclowerbar = %f\n", Vcupperbar, Vclowerbar);
+        Rcpp::Rprintf("Vc_hat = %f, Vc = %f\n", Xc_beta[ idx_cs_uword ], Vc_cs);
+        Rcpp::Rprintf("Vc_maxUnacceptable = %f, Vc_GroupMean = %f\n", Vc_maxUnacceptable[ s ], Vc_GroupMean[s]);
+        if (idx_tmp==-2) Rcpp::Rprintf("College %d is unacceptable to student %d\n", c, s);
 #endif
         
         
@@ -407,12 +407,12 @@ List stabest_internal(
         //----------------------------------------------------------------------------------//
         
 #ifdef DEBUG
-        printf("\nCollege %d's valuation over student %d:\n", c, s);
+        Rcpp::Rprintf("\nCollege %d's valuation over student %d:\n", c, s);
 #endif
         //--- equilibrium bounds -----------------------------------------------------------//
         
 #ifdef DEBUG
-          std::cout << "Determine college's eq. bounds ..\n" << std::flush;
+          Rcpp::Rcout << "Determine college's eq. bounds ..\n" << std::flush;
 #endif
         //  the following if-else applies only to colleges that are at full capacity:
         if ( !HasVacantSeats_c ) {
@@ -454,16 +454,16 @@ List stabest_internal(
         } // end of vacant seats
 		
 #ifdef DEBUG
-        printf("Equilibrium bounds: Vsupperbar = %f, Vslowerbar = %f\n", Vsupperbar, Vslowerbar);
+        Rcpp::Rprintf("Equilibrium bounds: Vsupperbar = %f, Vslowerbar = %f\n", Vsupperbar, Vslowerbar);
 #endif
 #ifdef DEBUG2
-        printf("0 ");  
+        Rcpp::Rprintf("0 ");  
 #endif
         
         //--- rank order list bounds ---------------------------------------------------------//
         
 #ifdef DEBUG
-          std::cout << "Determine college's rank order bounds ..\n" << std::flush;
+          Rcpp::Rcout << "Determine college's rank order bounds ..\n" << std::flush;
 #endif
         if( (idx_tmp = ID_sBetter[idx_cs]) ){
           // student j's valuation over the college that j ranks just above college i.
@@ -475,20 +475,20 @@ List stabest_internal(
             Vslowerbar = std::max( Vslowerbar, Vs_maxUnacceptable[ c ]);
         }
 #ifdef DEBUG2
-        printf("1 ");  
+        Rcpp::Rprintf("1 ");  
 #endif
         
         
         //--- draw new valuations that respect the bounds -----------------------------------//
         
 #ifdef DEBUG
-        std::cout << "Drawing college's new latent valuation of student ..\n" << std::flush;
+        Rcpp::Rcout << "Drawing college's new latent valuation of student ..\n" << std::flush;
 #endif
         Vs_cs = (Vslowerbar < Vsupperbar) ? TRUNCNORM(Xs_gamma[ idx_cs_uword ], 1.0, Vslowerbar, Vsupperbar) : Vsupperbar; // mu, sigma, lower, upper
 	      Vs[idx_cs] = Vs_cs;
         if (demean) Vs_GroupMean[c] += Vs_cs;
 #ifdef DEBUG2
-        printf("2 ");  
+        Rcpp::Rprintf("2 ");  
 #endif
         // update Vs_min if student j and college i are matched
         
@@ -506,7 +506,7 @@ List stabest_internal(
         }
 
 #ifdef DEBUG2
-        printf("3 ");  
+        Rcpp::Rprintf("3 ");  
 #endif
         // update the max of unranked Vs if s is unacceptable to c
         
@@ -522,10 +522,10 @@ List stabest_internal(
         }
         
 #ifdef DEBUG
-        printf("Rank order bounds:  Vsupperbar = %f, Vslowerbar = %f\n", Vsupperbar, Vslowerbar);
-        printf("Vs_hat = %f, Vs = %f\n", Xs_gamma[ idx_cs_uword ], Vs_cs);
-        printf("Vs_maxUnacceptable = %f, Vs_min = %f, Vs_GroupMean = %f\n", Vs_maxUnacceptable[ c ], Vs_min[ c ], Vs_GroupMean[ c ]);
-        if (idx_tmp==-2) printf("Student %d is unacceptable to college %d\n", s, c);
+        Rcpp::Rprintf("Rank order bounds:  Vsupperbar = %f, Vslowerbar = %f\n", Vsupperbar, Vslowerbar);
+        Rcpp::Rprintf("Vs_hat = %f, Vs = %f\n", Xs_gamma[ idx_cs_uword ], Vs_cs);
+        Rcpp::Rprintf("Vs_maxUnacceptable = %f, Vs_min = %f, Vs_GroupMean = %f\n", Vs_maxUnacceptable[ c ], Vs_min[ c ], Vs_GroupMean[ c ]);
+        if (idx_tmp==-2) Rcpp::Rprintf("Student %d is unacceptable to college %d\n", s, c);
 #endif
         
         
@@ -540,7 +540,7 @@ List stabest_internal(
     // compute Vs and Vc group means, and subtract means
     if (demean) {
 #ifdef DEBUG
-          std::cout << "Compute Vs and Vc group means, and subtract means ..\n" << std::flush;
+          Rcpp::Rcout << "Compute Vs and Vc group means, and subtract means ..\n" << std::flush;
 #endif
   	  for (int s=0; s<nStudents; s++) {
   		  Vc_GroupMean[s] /= nObs_student[s];
@@ -577,11 +577,11 @@ List stabest_internal(
     gamma = mvrnormArma(gamma_hat, XsXsInv_dense); //beta = Proj*Y;
     
 #ifdef DEBUG
-    printf("\nUpdated parameter vectors:\n");
-    std::cout << "beta_hat: " << beta_hat << std::endl;
-    std::cout << "beta: " << beta << std::endl;
-    std::cout << "gamma_hat: " << gamma_hat << std::endl;
-    std::cout << "gamma: " << gamma << std::endl;
+    Rcpp::Rprintf("\nUpdated parameter vectors:\n");
+    Rcpp::Rcout << "beta_hat: " << beta_hat << std::endl;
+    Rcpp::Rcout << "beta: " << beta << std::endl;
+    Rcpp::Rcout << "gamma_hat: " << gamma_hat << std::endl;
+    Rcpp::Rcout << "gamma: " << gamma << std::endl;
 #endif
     
     // save draws
@@ -603,9 +603,9 @@ List stabest_internal(
   
   
 	// print timing information
-	std::cout << "Total time spent in main iteration loop: " << ((double) draw_time + (double) loop_time) / CLOCKS_PER_SEC << "s" <<std::endl;
-  std::cout << "        ... of which drawing valuations: " << (double) loop_time / CLOCKS_PER_SEC << "s" << std::endl;
-  std::cout << "       ... of which updating parameters: " << (double) draw_time / CLOCKS_PER_SEC << "s" << std::endl << std::flush;
+	Rcpp::Rcout << "Total time spent in main iteration loop: " << ((double) draw_time + (double) loop_time) / CLOCKS_PER_SEC << "s" <<std::endl;
+  Rcpp::Rcout << "        ... of which drawing valuations: " << (double) loop_time / CLOCKS_PER_SEC << "s" << std::endl;
+  Rcpp::Rcout << "       ... of which updating parameters: " << (double) draw_time / CLOCKS_PER_SEC << "s" << std::endl << std::flush;
 
   
   

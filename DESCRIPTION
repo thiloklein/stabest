@@ -1,12 +1,13 @@
 Package: stabest
 Type: Package
-Title: Two-sided preference estimation in matching market.
+Title: Two-sided preference estimation in matching market
 Version: 1.2
 Date: 2019-10-31
 Author: Thilo Klein, Robert Aue
 Maintainer: Who to complain to <robert.aue@hotmail.de>
 Description: Estimation of student and college preferences in a m:1 school market. Identifying restrictions are imposed by (i) stability conditions of the observed matching, and (ii) the submitted rank order lists (which may be incomplete or contain unacceptable students / schools).
-License: What license is it under?
+License: GPL-3
+Encoding: UTF-8
 Imports: Rcpp (>= 1.0.0), dplyr, Matrix, truncnorm, mvtnorm
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.1.1
