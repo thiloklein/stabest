@@ -1,13 +1,8 @@
 *.dll
 *.o
 old/
-tests/
 man/
 .R/
 .Rproj.user/
-R/RcppExports.R
-src/RcppExports.cpp
 LOG.txt
 .Rhistory
-.Rbuildignore
-stabest.Rproj
