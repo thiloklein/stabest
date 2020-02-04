@@ -1,3 +1,11 @@
+#' Summarize the contents of an object of class stabest
+#' 
+#' @rdname summary.stabest
+#' @name summary.stabest
+#' 
+#' @param object an estimation object returned by stabest
+#' @param ... further arguments (ignored)
+#' 
 #' @export
 summary.stabest <- function(object, ...) {
   
