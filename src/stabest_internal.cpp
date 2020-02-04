@@ -243,6 +243,7 @@ List stabest_internal(
     begin = clock();
     if (!fmod(iter, chunk10percent) ) {
       Rcpp::Rcout << "Iteration " << iter << " ..." ;
+      Rcpp::checkUserInterrupt();
     }
     
     
