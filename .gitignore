@@ -1,7 +1,6 @@
 *.dll
 *.o
 old/
-man/
 .R/
 .Rproj.user/
 LOG.txt
