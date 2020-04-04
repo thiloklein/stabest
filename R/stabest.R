@@ -1,8 +1,9 @@
 #' Estimation of student and college preferences in a m:1 school market. 
+#' 
 #' Identifying restrictions are imposed by (i) stability conditions of the observed matching, and 
 #' (ii) the submitted rank order lists (which may be incomplete or contain unacceptable students / schools).
 #' 
-#' WARNING: The method 
+#' WARNING: The method is still under active development.
 #' 
 #' @rdname stabest
 #' @name stabest
