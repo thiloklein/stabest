@@ -15,7 +15,7 @@
 #' @param student.id variable containing the IDs of the students
 #' @param college.id variable containing the IDs of the schools
 #' @param match.id variable indicating a match (1=match, 0=no match). If NULL, no stability conditions will be imposed.
-#' @param data a data.frame
+#' @param data a data.frame. If it includes variables Vc_ and Vs_, these will be used as initial valuations of students over schools and vice versa.
 #' @param nSeats numeric vector indicating the number of seats for each school (order by college.id)
 #' @param demean whether to de-mean variables by decision making unit (beta)
 #' @param niter number of data augmentation iterations
@@ -355,16 +355,22 @@ stabest.default <- function(student.prefs, college.prefs,
   cat('Initialize latent valuations ...\n')
   
   # if ranks are observed, we init them to the quantiles of the N(0,1) distribution
-  data$tmp1 <- with(data, ifelse(cRank_>0, cRank_, ifelse(cRank_==-1, cRank_max+cid_, NA)))
-  data <- data %>% dplyr::group_by(sid_) %>% dplyr::mutate(tmp2 = rank(tmp1, na.last='keep'))
-  data <- data %>% dplyr::group_by(sid_) %>% dplyr::mutate(tmp3 = sum(!is.na(tmp1)))
-  data$Vc_ <- with(data, ifelse(!is.na(tmp2), qnorm(1 - (2*tmp2 - 1) / (2*tmp3)), 0))
+  if (is.null(data$Vc_)) {
+     cat('Vc not provided, initialize ...')
+     data$tmp1 <- with(data, ifelse(cRank_>0, cRank_, ifelse(cRank_==-1, cRank_max+cid_, NA)))
+     data <- data %>% dplyr::group_by(sid_) %>% dplyr::mutate(tmp2 = rank(tmp1, na.last='keep'))
+     data <- data %>% dplyr::group_by(sid_) %>% dplyr::mutate(tmp3 = sum(!is.na(tmp1)))
+     data$Vc_ <- with(data, ifelse(!is.na(tmp2), qnorm(1 - (2*tmp2 - 1) / (2*tmp3)), 0))
+  }
   
-  data$tmp1 <- with(data, ifelse(sRank_>0, sRank_, ifelse(sRank_==-1, sRank_max+sid_, NA)))
-  data <- data %>% dplyr::group_by(cid_) %>% dplyr::mutate(tmp2 = rank(tmp1, na.last='keep'))
-  data <- data %>% dplyr::group_by(cid_) %>% dplyr::mutate(tmp3 = sum(!is.na(tmp1)))
-  data$Vs_ <- with(data, ifelse(!is.na(tmp2), qnorm(1 - (2*tmp2 - 1) / (2*tmp3)), 0))
-  data$tmp1 <- data$tmp2 <- data$tmp3 <- NULL
+  if (is.null(data$Vs_)) {
+     cat('Vs not provided, initialize ...')
+     data$tmp1 <- with(data, ifelse(sRank_>0, sRank_, ifelse(sRank_==-1, sRank_max+sid_, NA)))
+     data <- data %>% dplyr::group_by(cid_) %>% dplyr::mutate(tmp2 = rank(tmp1, na.last='keep'))
+     data <- data %>% dplyr::group_by(cid_) %>% dplyr::mutate(tmp3 = sum(!is.na(tmp1)))
+     data$Vs_ <- with(data, ifelse(!is.na(tmp2), qnorm(1 - (2*tmp2 - 1) / (2*tmp3)), 0))
+     data$tmp1 <- data$tmp2 <- data$tmp3 <- NULL
+   }
   
   
   # sort the data cid_ - sid_
