@@ -614,8 +614,8 @@ List stabest_internal(
     // parameter draws
     Named("betadraws") = betavalues,
     Named("gammadraws") = gammavalues,
-    //Named("Vc") = Vc,
-    //Named("Vs") = Vs,
+    Named("Vc") = Vc,
+    Named("Vs") = Vs,
     Named("Vc_hat") = Xc_beta,
     Named("Vs_hat") = Xs_gamma
   );
