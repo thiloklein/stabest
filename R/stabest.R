@@ -442,6 +442,8 @@ stabest.default <- function(student.prefs, college.prefs,
   
   data$Vc_hat[data$use==T] <- res$Vc_hat
   data$Vs_hat[data$use==T] <- res$Vs_hat
+  data$Vc_[data$use==T] <- res$Vc
+  data$Vs_[data$use==T] <- res$Vs
   est <- list(beta.hat=beta.hat, beta.vcov=beta.vcov, beta.ci95=beta.ci95, betadraws=res$betadraws, 
               gamma.hat=gamma.hat, gamma.vcov=gamma.vcov, gamma.ci95=gamma.ci95, gammadraws=res$gammadraws,
               niter=niter, burnin=burnin, thin=thin,
