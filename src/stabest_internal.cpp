@@ -574,8 +574,8 @@ List stabest_internal(
     gamma_hat = Proj_Xs * Rcpp::as<arma::colvec>( Vs );
     
     // draw new bet and gamma
-    beta = mvrnormArma(beta_hat, XcXcInv_dense); //beta = Proj*Y;
-    gamma = mvrnormArma(gamma_hat, XsXsInv_dense); //beta = Proj*Y;
+    //beta = mvrnormArma(beta_hat, XcXcInv_dense); //beta = Proj*Y;
+    //gamma = mvrnormArma(gamma_hat, XsXsInv_dense); //beta = Proj*Y;
     
 #ifdef DEBUG
     Rcpp::Rprintf("\nUpdated parameter vectors:\n");
